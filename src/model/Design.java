@@ -30,8 +30,9 @@ public class Design implements Serializable {
         furnitureList.add(furniture);
     }
 
-    public void removeFurniture(Furniture furniture) {
+    public boolean removeFurniture(Furniture furniture) {
         furnitureList.remove(furniture);
+        return false;
     }
 
     public void removeFurniture(int index) {
@@ -98,8 +99,19 @@ public class Design implements Serializable {
         return furnitureList;
     }
 
+    // In the Design class, make sure the furniture list is properly initialized and managed
     public void setFurnitureList(List<Furniture> furnitureList) {
-        this.furnitureList = furnitureList;
+        if (furnitureList == null) {
+            this.furnitureList = new ArrayList<>();
+        } else {
+            // Create a deep copy to avoid reference issues
+            this.furnitureList = new ArrayList<>();
+            for (Furniture furniture : furnitureList) {
+                if (furniture != null) {
+                    this.furnitureList.add(furniture.clone());
+                }
+            }
+        }
     }
 
     @Override

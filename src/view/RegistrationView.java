@@ -87,11 +87,12 @@ public class RegistrationView extends JPanel {
         // Register button
         registerButton = new JButton("Create");
         registerButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        registerButton.setBackground(Color.WHITE);
-        registerButton.setForeground(Color.BLACK);
-        registerButton.setPreferredSize(new Dimension(100, 35));
-        registerButton.setMaximumSize(new Dimension(100, 35));
-        registerButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        registerButton.setBackground(Color.BLACK);
+        registerButton.setForeground(Color.WHITE);
+        registerButton.setFocusPainted(false);
+        registerButton.setBorderPainted(false);
+        registerButton.setPreferredSize(new Dimension(128, 50));
+        registerButton.setMaximumSize(new Dimension(128, 50));
 
         // Add action listener to register button
         registerButton.addActionListener(new ActionListener() {

@@ -76,11 +76,13 @@ public class LoginView extends JPanel {
         // Login button
         loginButton = new JButton("Sign In");
         loginButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        loginButton.setBackground(Color.WHITE);
-        loginButton.setForeground(Color.BLACK);
-        loginButton.setPreferredSize(new Dimension(100, 35));
-        loginButton.setMaximumSize(new Dimension(100, 35));
-        loginButton.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        loginButton.setBackground(Color.black);
+        loginButton.setForeground(Color.white);
+        loginButton.setFocusPainted(false);
+        loginButton.setBorderPainted(false);
+        loginButton.setPreferredSize(new Dimension(128, 50));
+        loginButton.setMaximumSize(new Dimension(128, 50));
+
 
         // Add action listener to login button
         loginButton.addActionListener(new ActionListener() {

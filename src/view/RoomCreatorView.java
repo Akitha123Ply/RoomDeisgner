@@ -189,6 +189,7 @@ public class RoomCreatorView extends JPanel {
         createButton.setBackground(Color.BLACK);
         createButton.setForeground(Color.WHITE);
         createButton.setFocusPainted(false);
+        createButton.setBorderPainted(false);
         createButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         createButton.addActionListener(new ActionListener() {
