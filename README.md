@@ -43,7 +43,7 @@ A Java application for designing and customizing room layouts with furniture in 
    - Select your run configuration (or create a new Application configuration)
    - In the "VM options" field, add:
      ```
-     --module-path "C:/path/to/javafx-sdk/lib" --add-modules javafx.controls,javafx.fxml,javafx.graphics
+     --module-path "C:/path/to/javafx-sdk/lib" --add-modules=javafx.controls,javafx.fxml,javafx.graphics,javafx.swing,javafx.web --enable-native-access=javafx.graphics
      ```
    - Replace the path with your actual JavaFX SDK location
    - Click Apply and OK
