@@ -2,6 +2,7 @@ package view;
 
 import controller.AuthController;
 import controller.DashboardController;
+import controller.ViewManager;
 import model.Design;
 import model.User;
 import util.AppContext;

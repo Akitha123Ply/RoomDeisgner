@@ -11,32 +11,31 @@ public class JavaFXIntegration {
 
     public static synchronized void initializeJavaFX() {
         if (initialized) {
+            System.out.println("JavaFX toolkit already initialized.");
             return;
         }
 
         System.out.println("Initializing JavaFX toolkit...");
 
         // Create a new JFXPanel to initialize the JavaFX toolkit
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new JFXPanel();
-                Platform.runLater(() -> {
-                    System.out.println("JavaFX toolkit initialized.");
-                    initialized = true;
-                    initLatch.countDown();
-                });
-            } catch (Exception e) {
-                System.err.println("Error initializing JavaFX toolkit: " + e.getMessage());
-                e.printStackTrace();
-                initLatch.countDown();
-            }
+        // This is thread-safe and can be called from any thread
+        new JFXPanel();
+
+        // Make sure Platform is running
+        Platform.runLater(() -> {
+            System.out.println("JavaFX toolkit initialized.");
+            initialized = true;
+            initLatch.countDown();
         });
 
-        // Wait for initialization to complete
-        try {
-            initLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        // If we're not on the EDT, wait for initialization to complete
+        if (!SwingUtilities.isEventDispatchThread()) {
+            try {
+                initLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.err.println("JavaFX initialization interrupted");
+            }
         }
     }
 
@@ -64,10 +63,13 @@ public class JavaFXIntegration {
             }
         });
 
-        try {
-            doneLatch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+        // Only wait if not on EDT
+        if (!SwingUtilities.isEventDispatchThread()) {
+            try {
+                doneLatch.await();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

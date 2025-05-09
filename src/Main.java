@@ -1,17 +1,13 @@
-import controller.AuthController;
-import controller.DashboardController;
 import util.AppContext;
-import util.JavaFXIntegration;
 import view.LoginView;
-
 import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
         System.out.println("Application Starting...");
 
-        // Initialize JavaFX for later use
-        JavaFXIntegration.initializeJavaFX();
+        // Initialize JavaFX early
+        //JavaFXManager.getInstance().initialize();
 
         // Set the look and feel to system
         try {
@@ -20,6 +16,7 @@ public class Main {
             e.printStackTrace();
         }
 
+        // Create application context
         AppContext appContext = new AppContext();
 
         // Launch the application on Swing EDT

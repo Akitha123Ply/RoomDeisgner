@@ -17,6 +17,7 @@ public class Design2DController {
     private FurnitureController furnitureController;
     private Design currentDesign;
     private boolean designChanged = false;
+    private boolean isNewUnsavedDesign = false;
 
     // For undo/redo functionality
     private Stack<List<Furniture>> undoStack;
@@ -38,6 +39,8 @@ public class Design2DController {
         saveState();
         // Reset the design changed flag
         this.designChanged = false;
+        // Reset the new unsaved design flag if we're loading an existing design
+        this.isNewUnsavedDesign = (design.getId() == 0);
     }
 
     public Design getCurrentDesign() {
@@ -56,21 +59,20 @@ public class Design2DController {
 
         // Create a new design with a default name
         String designName = "Design " + (FileManager.loadDesigns().size() + 1);
+
+        // Create design but don't save it yet - temporary ID of 0
         Design design = new Design(0, designName, currentUser.getEmail(), room);
 
-        // Save the design to file system
-        FileManager.addDesign(design);
-
-        // Add design to user's list
-        currentUser.addDesignId(design.getId());
+        // Set as current design
         currentDesign = design;
 
         // Initialize undo/redo stacks
         undoStack.clear();
         redoStack.clear();
 
-        // Reset the design changed flag since we just saved it
-        this.designChanged = false;
+        // Mark design as changed and new unsaved design
+        this.designChanged = true;
+        this.isNewUnsavedDesign = true;
 
         return design;
     }
@@ -100,14 +102,21 @@ public class Design2DController {
 
         // Clone the furniture to avoid modifying the original
         Furniture newFurniture = furniture.clone();
-        newFurniture.setPosition(new Point(position)); // Ensure we have a new Point instance
+        newFurniture.setPosition(new Point(position));
 
         System.out.println("Adding furniture: " + newFurniture.getType() +
                 " at position (" + position.x + "," + position.y + ")");
 
+        // Add to the design
         currentDesign.addFurniture(newFurniture);
+
+        // Save the state for undo
         saveState();
+
+        // Set design as changed
+        this.designChanged = true;
     }
+
     public void removeFurniture(Furniture furniture) {
         if (currentDesign == null) {
             return;
@@ -146,11 +155,46 @@ public class Design2DController {
      * Explicitly save the current design to the file system.
      * This should be called when the user chooses to save the design.
      */
-    public void saveDesign() {
+    public Design saveDesign() {
         if (currentDesign != null) {
-            FileManager.updateDesign(currentDesign);
+            User currentUser = authController.getCurrentUser();
+
+            if (isNewUnsavedDesign) {
+
+                // Create a clean copy of the design to save
+                Design designToSave = new Design(
+                        0,
+                        currentDesign.getName(),
+                        currentDesign.getUserEmail(),
+                        currentDesign.getRoom()
+                );
+
+                // Copy the furniture list (deep copy to prevent reference issues)
+                for (Furniture furniture : currentDesign.getFurnitureList()) {
+                    designToSave.addFurniture(furniture.clone());
+                }
+
+                // Save the design
+                FileManager.addDesign(designToSave);
+
+                // Update the current design with the ID that was assigned
+                currentDesign.setId(designToSave.getId());
+
+                // Add design to user's list only on first save
+                if (currentUser != null) {
+                    currentUser.addDesignId(currentDesign.getId());
+                }
+
+                isNewUnsavedDesign = false;
+            } else {
+                // This is an existing design being updated
+                FileManager.updateDesign(currentDesign);
+            }
+
             // Reset the design changed flag
             this.designChanged = false;
         }
+
+        return currentDesign;
     }
 }

@@ -99,7 +99,7 @@ public class Design implements Serializable {
         return furnitureList;
     }
 
-    // In the Design class, make sure the furniture list is properly initialized and managed
+    // In the Design class
     public void setFurnitureList(List<Furniture> furnitureList) {
         if (furnitureList == null) {
             this.furnitureList = new ArrayList<>();

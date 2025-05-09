@@ -116,6 +116,22 @@ public class Design2DView extends JPanel {
         add(mainPanel);
     }
 
+    public void updateDesign(Design design) {
+        // Update the design
+        if (design != null) {
+            this.design = design;
+            this.room = design.getRoom();
+
+            // Update the controller
+            appContext.getDesign2DController().setCurrentDesign(design);
+
+            // Repaint
+            if (roomPanel != null) {
+                roomPanel.repaint();
+            }
+        }
+    }
+
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BorderLayout());
@@ -320,14 +336,19 @@ public class Design2DView extends JPanel {
                         return;
                     }
 
-                    // Update the design name and save
+                    // Update the design name
                     currentDesign.setName(newName);
+
+                    // Save the design
                     appContext.getDesign2DController().saveDesign();
 
+                    // Show success message
                     JOptionPane.showMessageDialog(this,
                             "Design \"" + newName + "\" saved successfully!",
                             "Save Successful",
                             JOptionPane.INFORMATION_MESSAGE);
+
+                    roomPanel.repaint();
                 } else {
                     // If no design is loaded, show error
                     JOptionPane.showMessageDialog(this,
@@ -471,16 +492,16 @@ public class Design2DView extends JPanel {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
-
                 // Enable anti-aliasing for smoother rendering
-                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON);
 
                 // Calculate the room dimensions in pixels
                 // Maintain aspect ratio of the room
                 double roomWidthMeters = room.getWidth();
                 double roomLengthMeters = room.getLength();
 
-                int pixelsPerMeter = 100;  // Fixed scale: 1 meter = 100 pixels
+                int pixelsPerMeter = 100; // Fixed scale: 1 meter = 100 pixels
                 int roomWidthPixels = (int)(roomWidthMeters * pixelsPerMeter);
                 int roomLengthPixels = (int)(roomLengthMeters * pixelsPerMeter);
 
@@ -493,12 +514,17 @@ public class Design2DView extends JPanel {
                 g2d.setStroke(new BasicStroke(2));
                 g2d.drawRect(0, 0, roomWidthPixels - 1, roomLengthPixels - 1);
 
-                // Draw furniture
-                if (design != null && design.getFurnitureList() != null) {
-                    System.out.println("Drawing " + design.getFurnitureList().size() + " furniture items");
+                // Draw furniture - make sure we're getting the latest design from the controller
+                Design currentDesign = appContext.getDesign2DController().getCurrentDesign();
 
-                    // Draw furniture
-                    for (Furniture furniture : design.getFurnitureList()) {
+                if (currentDesign != null && currentDesign.getFurnitureList() != null) {
+                    System.out.println("Drawing " + currentDesign.getFurnitureList().size() + " furniture items");
+
+                    // Important: Create a temporary list to avoid concurrent modification
+                    List<Furniture> furnitureToDraw = new ArrayList<>(currentDesign.getFurnitureList());
+
+                    // Draw each furniture piece
+                    for (Furniture furniture : furnitureToDraw) {
                         drawFurniture(g2d, furniture, pixelsPerMeter);
                     }
                 } else {
